@@ -11,28 +11,31 @@ func main() {
 	var remainingTickets uint = 50
 	bookings := []string{}
 
-	fmt.Printf("Welcome to %v booking application\n", conferenceName)
-	fmt.Printf("We have total of %v tickets and %v are still available\n", conferenceTickets, remainingTickets)
-	fmt.Println("Get your tickets here to attend")
-
-	var firstName string
-	var lastName string
+	greetUser( conferenceName, conferenceTickets, remainingTickets)
 	var cont string
-	var email string
-	var userTickets uint
+
 
 	for {
-		fmt.Println("Please enter your first name")
-		fmt.Scan(&firstName)
+		firstName, lastName, email, userTickets := getUserInput()
 
-		fmt.Println("Please enter your last name")
-		fmt.Scan(&lastName)
+		isValidName, isValidEmail, isValidTicket := validateUserInput(firstName, lastName, email, userTickets, remainingTickets)
 
-		fmt.Println("Please enter email address")
-		fmt.Scan(&email)
+		if !isValidName {
+			fmt.Println("Invalid Name")
+		}
 
-		fmt.Println("please enter the number of ticket you want to purchase")
-		fmt.Scan(&userTickets)
+		if !isValidEmail {
+			fmt.Println("Invalid Email")
+		}
+
+		if !isValidTicket {
+			fmt.Println("Invalid Ticket")
+		}
+		//if there user booked more ticket than available ticket, print error message
+		if userTickets > remainingTickets {
+			fmt.Printf("Sorry, There is only %v remainingTicket left. Please try again.\n", remainingTickets)
+			continue
+		}
 
 		remainingTickets -= userTickets
 		bookings = append(bookings, firstName+" "+lastName)
@@ -44,15 +47,69 @@ func main() {
 		if cont == "no" {
 			break
 		}
+		//if there is no more remaining ticket, then quit the program
+		if remainingTickets == 0 {
+			fmt.Println("There is no more ticket left!!!!")
+			break
+		}
 
 	}
+	printName := getFirstName(bookings)
+	//print out only the firstName from the slice
+	fmt.Printf("Here is the list of totel booking %v\n\n", printName)
+	fmt.Println("****Good Bye***")
+
+}
+
+//writing a function
+func greetUser(conferenceName string, conferenceTickets uint, remainingTickets uint ) {
+
+	fmt.Printf("Welcome to %v booking application\n", conferenceName)
+	fmt.Printf("We have total of %v tickets and %v are still available\n", conferenceTickets, remainingTickets)
+	fmt.Println("Get your tickets here to attend")
+
+}
+
+func getFirstName(bookings []string) []string {
 	firstNameBookings := []string{}
 	for _, booking := range bookings {
-		var name = strings.Fields(booking)
+		var name = strings.Fields(booking) //split the string with space ["crystal", "song"]
+		//only save the first name in the slice(go term for array)
 		firstNameBookings = append(firstNameBookings, name[0])
 
 	}
-	fmt.Printf("Here is the list of totel booking %v\n\n", firstNameBookings)
-	fmt.Println("****Good Bye***")
+	return firstNameBookings
+}
+
+//in Go, you can return multiple value
+func validateUserInput (firstName string, lastName string, email string, userTickets uint, remainingTickets uint ) (bool, bool, bool){
+	isValidName := len(firstName) >= 2 && len(lastName) >= 2
+	isValidEmail := strings.Contains(email, "@")
+	isValidTicket := userTickets > 0 && userTickets > remainingTickets
+
+	return isValidName, isValidEmail, isValidTicket;
+
+}
+
+//get user input
+func getUserInput () (string, string, string, uint) {
+	var firstName string
+	var lastName string
+	var email string
+	var userTickets uint
+
+	fmt.Println("Please enter your first name")
+	fmt.Scan(&firstName)
+
+	fmt.Println("Please enter your last name")
+	fmt.Scan(&lastName)
+
+	fmt.Println("Please enter email address")
+	fmt.Scan(&email)
+
+	fmt.Println("please enter the number of ticket you want to purchase")
+	fmt.Scan(&userTickets)
+
+	return firstName, lastName, email, userTickets
 
 }
